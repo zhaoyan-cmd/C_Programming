@@ -1,0 +1,117 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define BOARD_SIZE 15  // 棋盘大小，15x15
+#define EMPTY 0        // 空格
+#define PLAYER_X 1     // 玩家 X
+#define PLAYER_O 2     // 玩家 O
+
+// 棋盘
+int board[BOARD_SIZE][BOARD_SIZE];
+
+// 打印棋盘
+void printBoard() {
+    printf("  ");
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        printf("%2d", i + 1);  // 打印列数
+    }
+    printf("\n");
+
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        printf("%2d", i + 1);  // 打印行数
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if (board[i][j] == EMPTY) {
+                printf(" .");
+            } else if (board[i][j] == PLAYER_X) {
+                printf(" X");
+            } else if (board[i][j] == PLAYER_O) {
+                printf(" O");
+            }
+        }
+        printf("\n");
+    }
+}
+
+// 判断当前位置是否合法
+int isValidMove(int row, int col) {
+    if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE) {
+        printf("位置越界，请重新输入！\n");
+        return 0;
+    }
+    if (board[row][col] != EMPTY) {
+        printf("该位置已经有棋子，请重新输入！\n");
+        return 0;
+    }
+    return 1;
+}
+
+// 检查是否有五子连珠
+int checkWin(int row, int col, int player) {
+    // 检查水平方向
+    int count = 1;
+    for (int i = col - 1; i >= 0 && board[row][i] == player; i--) count++;
+    for (int i = col + 1; i < BOARD_SIZE && board[row][i] == player; i++) count++;
+    if (count >= 5) return 1;
+
+    // 检查垂直方向
+    count = 1;
+    for (int i = row - 1; i >= 0 && board[i][col] == player; i--) count++;
+    for (int i = row + 1; i < BOARD_SIZE && board[i][col] == player; i++) count++;
+    if (count >= 5) return 1;
+
+    // 检查左上到右下方向
+    count = 1;
+    for (int i = 1; row - i >= 0 && col - i >= 0 && board[row - i][col - i] == player; i++) count++;
+    for (int i = 1; row + i < BOARD_SIZE && col + i < BOARD_SIZE && board[row + i][col + i] == player; i++) count++;
+    if (count >= 5) return 1;
+
+    // 检查右上到左下方向
+    count = 1;
+    for (int i = 1; row - i >= 0 && col + i < BOARD_SIZE && board[row - i][col + i] == player; i++) count++;
+    for (int i = 1; row + i < BOARD_SIZE && col - i >= 0 && board[row + i][col - i] == player; i++) count++;
+    if (count >= 5) return 1;
+
+    return 0;
+}
+
+// 游戏主逻辑
+void playGame() {
+    int row, col;
+    int currentPlayer = PLAYER_X;  // 玩家 X 先手
+
+    while (1) {
+        printBoard();
+        printf("玩家 %c 的回合\n", (currentPlayer == PLAYER_X) ? 'X' : 'O');
+        printf("请输入行和列 (1-%d): ", BOARD_SIZE);
+        scanf("%d %d", &row, &col);
+
+        // 调整为从 0 开始的索引
+        row--;
+        col--;
+
+        if (isValidMove(row, col)) {
+            board[row][col] = currentPlayer;
+            if (checkWin(row, col, currentPlayer)) {
+                printBoard();
+                printf("玩家 %c 获胜！\n", (currentPlayer == PLAYER_X) ? 'X' : 'O');
+                break;
+            }
+            // 切换玩家
+            currentPlayer = (currentPlayer == PLAYER_X) ? PLAYER_O : PLAYER_X;
+        }
+    }
+}
+
+int main() {
+    // 初始化棋盘
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            board[i][j] = EMPTY;
+        }
+    }
+
+    printf("欢迎来到五子棋游戏！\n");
+    playGame();
+
+    return 0;
+}
