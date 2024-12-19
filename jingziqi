@@ -1,0 +1,123 @@
+#include <stdio.h>
+
+// 棋盘大小
+#define SIZE 3
+
+// 声明函数
+void printBoard(char board[SIZE][SIZE]);
+int checkWinner(char board[SIZE][SIZE]);
+int isBoardFull(char board[SIZE][SIZE]);
+
+// 主函数
+int main() {
+    // 初始化棋盘
+    char board[SIZE][SIZE] = {{'1', '2', '3'}, {'4', '5', '6'}, {'7', '8', '9'}};
+    int currentPlayer = 1;  // 玩家 1 开始 (1 -> 'X' , 2 -> 'O')
+    int move, row, col;
+    char mark;
+
+    printf("井字棋游戏 - 双人对战版\n");
+
+    while (1) {
+        printBoard(board);
+        // 当前玩家选择标记
+        mark = (currentPlayer == 1) ? 'X' : 'O';
+
+        // 提示玩家输入位置
+        printf("玩家 %d (%c), 请选一个空位置 [1-9]: ", currentPlayer, mark);
+        scanf("%d", &move);
+
+        // 检查输入是否有效
+        if (move < 1 || move > 9) {
+            printf("无效输入，请输入 1 到 9 之间的数字。\n");
+            continue;
+        }
+
+        // 计算行列位置
+        row = (move - 1) / SIZE;
+        col = (move - 1) % SIZE;
+
+        // 检查位置是否已经被占用
+        if (board[row][col] == 'X' || board[row][col] == 'O') {
+            printf("该位置已被占用，请选择其他位置。\n");
+            continue;
+        }
+
+        // 更新棋盘
+        board[row][col] = mark;
+
+        // 检查是否有获胜者
+        if (checkWinner(board)) {
+            printBoard(board);
+            printf("玩家 %d (%c) 获胜！\n", currentPlayer, mark);
+            break;
+        }
+
+        // 检查是否平局
+        if (isBoardFull(board)) {
+            printBoard(board);
+            printf("游戏结束，平局！\n");
+            break;
+        }
+
+        // 切换玩家
+        currentPlayer = (currentPlayer == 1) ? 2 : 1;
+    }
+
+    return 0;
+}
+
+// 打印棋盘
+void printBoard(char board[SIZE][SIZE]) {
+    printf("\n");
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            printf(" %c ", board[i][j]);
+            if (j < SIZE - 1) printf("|");
+        }
+        printf("\n");
+        if (i < SIZE - 1) {
+            printf("---|---|---\n");
+        }
+    }
+    printf("\n");
+}
+
+// 检查是否有玩家获胜
+int checkWinner(char board[SIZE][SIZE]) {
+    // 检查行
+    for (int i = 0; i < SIZE; i++) {
+        if (board[i][0] == board[i][1] && board[i][1] == board[i][2]) {
+            return 1;
+        }
+    }
+
+    // 检查列
+    for (int i = 0; i < SIZE; i++) {
+        if (board[0][i] == board[1][i] && board[1][i] == board[2][i]) {
+            return 1;
+        }
+    }
+
+    // 检查对角线
+    if (board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
+        return 1;
+    }
+    if (board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
+        return 1;
+    }
+
+    return 0;
+}
+
+// 检查棋盘是否已满（即平局）
+int isBoardFull(char board[SIZE][SIZE]) {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            if (board[i][j] != 'X' && board[i][j] != 'O') {
+                return 0;  // 如果还有空位，返回 0
+            }
+        }
+    }
+    return 1;  // 如果没有空位，返回 1
+}
